@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,8 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<Pick<Profile, 'full_name' | 'avatar_url'>>) => Promise<{ error: Error | null }>;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,6 +29,8 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
+  updateProfile: async () => ({ error: null }),
+  refetchProfile: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -38,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -48,7 +52,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!error && data) {
       setProfile(data as Profile);
     }
-  };
+  }, []);
+
+  const refetchProfile = useCallback(async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
+    }
+  }, [user?.id, fetchProfile]);
+
+  const updateProfile = useCallback(async (updates: Partial<Pick<Profile, 'full_name' | 'avatar_url'>>) => {
+    if (!user?.id) {
+      return { error: new Error("No user logged in") };
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("user_id", user.id);
+
+    if (!error) {
+      await fetchProfile(user.id);
+    }
+
+    return { error: error as Error | null };
+  }, [user?.id, fetchProfile]);
 
   useEffect(() => {
     // Set up auth state listener first
@@ -83,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -94,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signOut, updateProfile, refetchProfile }}>
       {children}
     </AuthContext.Provider>
   );
