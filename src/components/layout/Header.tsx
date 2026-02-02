@@ -1,10 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Zap, 
   Menu, 
-  X 
+  X,
+  LayoutDashboard 
 } from "lucide-react";
 import { useState } from "react";
 
@@ -17,6 +19,7 @@ const navLinks = [
 
 export const Header = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -51,12 +54,23 @@ export const Header = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button variant="hero" asChild>
-              <Link to="/auth?mode=signup">Get Started</Link>
-            </Button>
+            {user ? (
+              <Button variant="hero" asChild>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button variant="hero" asChild>
+                  <Link to="/auth?mode=signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -92,12 +106,23 @@ export const Header = () => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
-                <Button variant="ghost" asChild className="w-full">
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-                </Button>
-                <Button variant="hero" asChild className="w-full">
-                  <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
-                </Button>
+                {user ? (
+                  <Button variant="hero" asChild className="w-full">
+                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" asChild className="w-full">
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                    </Button>
+                    <Button variant="hero" asChild className="w-full">
+                      <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
