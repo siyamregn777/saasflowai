@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/layout/Header";
 import {
   Zap,
   LayoutDashboard,
@@ -44,14 +45,18 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-40",
-          collapsed ? "w-16" : "w-64"
-        )}
-      >
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <Header />
+      
+      <div className="flex flex-1 pt-16">
+        {/* Sidebar */}
+        <aside
+          className={cn(
+            "fixed left-0 top-16 h-[calc(100%-4rem)] bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-40",
+            collapsed ? "w-16" : "w-64"
+          )}
+        >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
           <Link to="/dashboard" className="flex items-center gap-2">
@@ -146,15 +151,16 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main
-        className={cn(
-          "flex-1 transition-all duration-300",
-          collapsed ? "ml-16" : "ml-64"
-        )}
-      >
-        {children}
-      </main>
+        {/* Main Content */}
+        <main
+          className={cn(
+            "flex-1 transition-all duration-300",
+            collapsed ? "ml-16" : "ml-64"
+          )}
+        >
+          {children}
+        </main>
+      </div>
     </div>
   );
 };
