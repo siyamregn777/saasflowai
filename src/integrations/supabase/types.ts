@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dashboard_metrics: {
+        Row: {
+          active_users: number
+          api_requests: number
+          conversion_rate: number
+          created_at: string
+          date: string
+          id: string
+          page_views: number
+          revenue: number
+          user_id: string
+        }
+        Insert: {
+          active_users?: number
+          api_requests?: number
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          page_views?: number
+          revenue?: number
+          user_id: string
+        }
+        Update: {
+          active_users?: number
+          api_requests?: number
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          page_views?: number
+          revenue?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
